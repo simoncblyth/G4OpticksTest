@@ -24,10 +24,15 @@
 #include "G4HCtable.hh"
 #include "G4ThreeVector.hh"
 #include "EventAction.hh"
+
+#ifdef WITH_ROOT
 #include "RootIO.hh"
+#endif
+
 #include "Event.hh"
 #include <vector> 
 #include "PhotonHit.hh"
+
 #ifdef WITH_OPTICKS
 #include "OpticksFlags.hh"
 #include "G4Opticks.hh"
@@ -143,6 +148,7 @@ void EventAction::EndOfEventAction(const G4Event* event) {
     // Now we deal with The geant4 Hit collections. 
     //
     // G4cout << "Number of collections:  " << HCE->GetNumberOfCollections() << G4endl;
+#ifdef WITH_ROOT
     if (enable_IO) {
         for (int i = 0; i < HCE->GetNumberOfCollections(); i++) {
             hitsVector.clear();
@@ -176,6 +182,8 @@ void EventAction::EndOfEventAction(const G4Event* event) {
         }
         RootIO::GetInstance()->Write(CaTSEvt);
     }
+#endif
+
     CaTSEvt->Reset();
 }
 
