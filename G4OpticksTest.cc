@@ -15,28 +15,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  
  * See the License for the specific language governing permissions and 
  * limitations under the License.
- */
-
+ */#ifdef WITH_OPTICKS
 #include "OPTICKS_LOG.hh"
+#endif
+
 #include "G4.hh"
+#include "ConfigurationManager.hh"
+
 #include "G4UImanager.hh"
 #include "G4Timer.hh"
 #include "G4UIExecutive.hh"
 #include "G4VisExecutive.hh"
 
-#include "G4PhysListFactoryAlt.hh" 
-#include "G4PhysicsConstructorRegistry.hh"
-#include "G4PhysListRegistry.hh"
-#include "G4OpticalPhysics.hh"
-#include "G4NeutronTrackingCut.hh"
-#include "G4VModularPhysicsList.hh"
-#include "G4StepLimiter.hh"
-#include "G4StepLimiterPhysics.hh"
-#include "G4SystemOfUnits.hh"
 
 //#include <boost/timer/timer.hpp>
 //#include <iostream>
 //using namespace boost::timer;
+
 int main(int argc, char** argv) {
     bool interactive = false;
     G4UIExecutive* ui = nullptr;
@@ -53,7 +48,9 @@ int main(int argc, char** argv) {
         interactive = true;
         ui = new G4UIExecutive(argc, argv);
     }
-    G4cout << " gdml file: " << argv[1] << G4endl;
+    if (ConfigurationManager::getInstance()->isEnable_verbose()) {
+        G4cout << " gdml file: " << argv[1] << G4endl;
+    }
     //start time
     G4Timer *eventTimer = new G4Timer;
     eventTimer->Start();
@@ -64,12 +61,11 @@ int main(int argc, char** argv) {
     G4 g(argv[1]);
 
     G4UImanager* UImanager = G4UImanager::GetUIpointer();
-    
+
     if (interactive) {
         G4VisManager* visManager = new G4VisExecutive;
         visManager->Initialize();
         //get the pointer to the User Interface manager
-        //        UImanager->ApplyCommand("/control/execute init_vis.mac");
         UImanager->ApplyCommand("/control/execute init_vis.mac");
         ui->SessionStart();
         delete ui;

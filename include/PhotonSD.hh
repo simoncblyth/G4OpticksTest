@@ -16,8 +16,7 @@
 #define PhotonSD_h 1
 
 #include "G4VSensitiveDetector.hh"
-
-
+#include "PhotonHit.hh"
 
 class G4Step;
 class G4HCofThisEvent;
@@ -36,9 +35,12 @@ public:
     virtual void EndOfEvent(G4HCofThisEvent* hitCollection);
 
 private:
-    // we don't create any Hits
-
-
+    PhotonHitsCollection* fPhotonHitsCollection;
+    double etolambda(double);
+    G4int fHCID;
+    const double c = 299792458.; // speed of light in m/sec
+    const double h = 4.13566743E-15; // Planck constant in eVsec
+    bool verbose;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

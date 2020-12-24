@@ -18,18 +18,18 @@
  */
 
 #pragma once
-
 #include "G4UserEventAction.hh"
-class Ctx ; 
+class Ctx;
+class Event;
 
-class EventAction : public G4UserEventAction
-{
+class EventAction : public G4UserEventAction {
 public:
-    EventAction(Ctx* ctx_); 
+    EventAction(Ctx* ctx_);
     virtual void BeginOfEventAction(const G4Event* anEvent);
     virtual void EndOfEventAction(const G4Event* anEvent);
-
-  //    void addDummyHits(G4HCofThisEvent* HCE);
-
-    Ctx*  ctx ; 
+    Event* GetEvent(){return CaTSEvt;}
+    Ctx* ctx;
+    bool enable_IO;
+private:
+    Event* CaTSEvt;
 };
