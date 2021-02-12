@@ -50,21 +50,19 @@
 #include "G4SystemOfUnits.hh"
 
 G4::G4(G4String fname)
-:
-ctx(new Ctx),
-rm(new G4RunManager),
-
-sdn("SD0"),
-//sd(new SensitiveDetector(sdn)),
-dc(new DetectorConstruction(fname)),
-
-
-pl(NULL),
-ga(NULL),
-ra(NULL),
-ea(NULL),
-ta(NULL),
-sa(NULL) {
+    :
+    ctx(new Ctx),
+    rm(new G4RunManager),
+    sdn("SD0"),
+    //sd(new SensitiveDetector(sdn)),
+    dc(new DetectorConstruction(fname)),
+    pl(NULL),
+    ga(NULL),
+    ra(NULL),
+    ea(NULL),
+    ta(NULL),
+    sa(NULL) 
+{
     //
     // Access to registries and factories
     //
