@@ -23,6 +23,7 @@
 #ifdef WITH_OPTICKS
 #include "G4TransportationManager.hh"
 #include "G4Opticks.hh"
+#include "SSys.hh"
 #endif
 
 #include "RunAction.hh"
@@ -51,9 +52,11 @@ void RunAction::BeginOfRunAction(const G4Run*) {
 
      G4Opticks* g4ok = G4Opticks::Get();
      g4ok->setGeometry(world, standardize_geant4_materials );
+     g4ok->setProfile(true);
+     g4ok->setProfileLeakMB(SSys::getenvfloat("G4OPTICKSTEST_PROFILE_LEAK_MB",0.f));  
+     g4ok->setGenstepReservation(SSys::getenvint("G4OPTICKSTEST_GENSTEP_RESERVATION", 0)); 
 
      const std::vector<G4PVPlacement*>& sensor_placements = g4ok->getSensorPlacements() ;
-     //assert( sensor_placements.size() == 1 );
      G4cout << "sensor_placements.size():  "<<sensor_placements.size()<<G4endl;
      for(unsigned i=0 ; i < sensor_placements.size()  ; i++)
      {

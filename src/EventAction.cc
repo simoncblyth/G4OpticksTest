@@ -36,8 +36,7 @@
 #ifdef WITH_OPTICKS
 #include "OpticksFlags.hh"
 #include "G4Opticks.hh"
-#include "NPho.hpp"
-#include "NPY.hpp"
+#include "G4OpticksHit.hh"
 #endif
 
 #include "Ctx.hh"
@@ -70,78 +69,54 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
 }
 
 void EventAction::EndOfEventAction(const G4Event* event) {
-    G4cout << "Event:   " << event->GetEventID() << G4endl;
-    bool verbose = ConfigurationManager::getInstance()->isEnable_verbose();
     G4HCofThisEvent* HCE = event->GetHCofThisEvent();
     assert(HCE);
-    //   if (enable_IO) {
     std::vector<G4VHit*> hitsVector;
     std::map<G4String, std::vector<G4VHit* > >* hcmap = CaTSEvt->GetHCMap();
-    //   }
     if (ConfigurationManager::getInstance()->isEnable_opticks()) {
 
 #ifdef WITH_OPTICKS
-        G4Opticks* ok = G4Opticks::Get();
+        G4Opticks* g4ok = G4Opticks::Get();
         G4int eventid = event->GetEventID();
-        int num_hits = ok->propagateOpticalPhotons(eventid);
 
-        NPY<float>* hits = ok->getHits();
-        NPho* m_hits = new NPho(hits);
-        unsigned m_num_hits = m_hits->getNumPhotons();
-        assert(hits == NULL || hits->getNumItems() == unsigned(num_hits));
-        if (verbose) {
-            G4cout << "EventAction::EndOfEventAction"
-                    << " num_hits " << num_hits
-                    << "   m_num_hits: " << m_num_hits
-                    << " hits " << hits
-                    << G4endl;
-        }
-        G4ThreeVector position;
-        G4ThreeVector direction;
-        G4ThreeVector polarization;
-        for (unsigned i = 0; i < m_num_hits; i++) {
-            glm::vec4 post = m_hits->getPositionTime(i);
-            //        G4ThreeVector * position = new G4ThreeVector(double(post.x), double(post.y), double(post.z));
-            position.setX(double(post.x));
-            position.setY(double(post.y));
-            position.setZ(double(post.z));
-            //position->set(double(post.x), double(post.y), double(post.z));
-            G4double time = double(post.w);
-            glm::vec4 dirw = m_hits->getDirectionWeight(i);
-            direction.setX(double(dirw.x));
-            direction.setY(double(dirw.y));
-            direction.setZ(double(dirw.z));
-            G4double weight = double(dirw.w);
-            glm::vec4 polw = m_hits->getPolarizationWavelength(i);
-            polarization.setX(double(polw.x));
-            polarization.setY(double(polw.y));
-            polarization.setZ(double(polw.z));
-            G4double wavelength = double(polw.w);
-            glm::uvec4 flags = m_hits->getFlags(i);
-            G4int flags_x = flags.x;
-            G4int flags_y = flags.y;
-            G4int flags_z = flags.z;
-            G4int flags_w = flags.w;
-            G4bool is_cerenkov = (flags.w & CERENKOV) != 0;
-            G4bool is_reemission = (flags.w & BULK_REEMIT) != 0;
-            //        G4cout << "weight:  " << flags_w
-            //                << "  cerenkov:  " << is_cerenkov
-            //                << "  reemit:  " << is_reemission
-            //                << G4endl;
+        g4ok->propagateOpticalPhotons(eventid);
+
+        G4OpticksHit hit ;
+        G4OpticksHitExtra hit_extra ;
+
+        unsigned num_gensteps = g4ok->getNumGensteps();  
+        unsigned num_photons = g4ok->getNumPhotons();  
+        unsigned num_hits = g4ok->getNumHit();  
+        bool way_enabled = g4ok->isWayEnabled() ;
+
+        G4cout << "EventAction::EndOfEventAction"
+                << " eventid " << eventid
+                << " num_gensteps " << num_gensteps
+                << " num_photons " << num_photons
+                << " num_hits " << num_hits
+                << " way_enabled " << way_enabled
+                << G4endl;
+
+        G4OpticksHitExtra* hit_extra_ptr = way_enabled ? &hit_extra : NULL ;
+
+        for (unsigned i = 0; i < num_hits; i++) 
+        {
+            g4ok->getHit(i, &hit, hit_extra_ptr );             
+
             if (enable_IO) {
                 hitsVector.push_back(new PhotonHit(i,
                         0,
-                        wavelength,
-                        time,
-                        position,
-                        direction,
-                        polarization));
+                        hit.wavelength,
+                        hit.time,
+                        hit.global_position,
+                        hit.global_direction,
+                        hit.global_polarization));
             }
         }
         if (enable_IO) {
             hcmap->insert(std::make_pair("PhotonDetector", hitsVector));
         }
-        ok->reset();
+        g4ok->reset();
 #endif 
     }
     //

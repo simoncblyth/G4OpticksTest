@@ -45,7 +45,14 @@ export OPTICKS_EMBEDDED_COMMANDLINE_EXTRA="--rngmax 10"
 #SY=10000
 SY=50000
 
-cmd="G4OpticksTest $PWD/gdml/G4Opticks_$SY.gdml macros/muon_noIO.mac"
+mac=macros/muon_noIO.mac
+#mac=macros/muon_noIO_10.mac
+#mac=macros/muon_noIO_1000.mac
+
+#export G4OPTICKSTEST_PROFILE_LEAK_MB=20   # deliberate leak to check measurement
+export G4OPTICKSTEST_GENSTEP_RESERVATION=4000 # max_gensteps_expected
+
+cmd="G4OpticksTest $PWD/gdml/G4Opticks_$SY.gdml $mac"
 #cmd="gdb -ex r --args $cmd"   # uncomment to run under debugger
 
 echo $cmd
